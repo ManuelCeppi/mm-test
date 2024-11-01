@@ -1,0 +1,88 @@
+version: "3.9"
+
+networks:
+  mm-rental-project:
+    # bridge so that compose does not create a new network for every container
+    driver: bridge
+
+services:
+  api.mm.rental.project:
+    # if not specified, compose prefixes with the network
+    container_name: api.mm.rental.project
+    # linking the docker file
+    build: "./docker/backend"
+    # the entrypoint that will be executed after the container initialization: this one is actually the one that's inside the container.
+    entrypoint: /entrypoint.sh
+    # copying all the volumes that i actually need for the container in order to work
+    volumes:
+      - ./backend/:/var/www/html
+      - ./docker/backend/entrypoint.sh:/entrypoint.sh
+    # no ports because its all managed by the reverse proxy
+    # the env file
+    env_file: 
+      - api.dev.env
+    # the other containers that this one needs and rely on to actually work
+    depends_on:
+      - db.mm.rental.project
+    # the network of the container itself
+    networks:
+      - mm-rental-project
+  
+  db.mm.rental.project:
+    # the image
+    image: "mysql:8.0"
+    # restarting policies (*** ? to ckeck)
+    restart: always
+    # env not through an env file
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "rental_project"
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - mm-rental-project
+
+  dbmate.mm.rental.project:
+    container_name: dbmate.mm.rental.project
+    build: "./docker/migrations"
+    entrypoint: /entrypoint-migrations.sh
+    environment:
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "root"
+      DB_HOST: db.mm.rental.project
+      DB_PORT: 3306
+    networks:
+      - mm-rental-project
+    volumes:
+      - ./migrations:/migrations
+      - ./docker/migrations/entrypoint-migrations.sh:/entrypoint-migrations.sh
+    depends_on:
+      - db.mm.rental.project
+
+  nginx.mm.rental.project:
+    container_name: nginx.mm.rental.project
+    image: "nginx:1.21.3"
+    entrypoint: /entrypoint.sh
+    volumes:
+      - ./docker/nginx/conf.d/base.conf:/etc/nginx/conf.d/default.conf:delegated
+      - ./docker/nginx/entrypoint.sh:/entrypoint.sh:delegated
+    ports:
+      - "80:80"
+    networks:
+      - mm-rental-project
+    # health check
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost"]
+  
+  stripe.cli.mm.rental.project:
+    container_name: stripe.cli.mm.rental.project
+    image: "stripe/stripe-cli:latest"
+    command: "listen --api-key $${STRIPE_API_KEY} --forward-to localhost:80/payment/webhook/"
+    env_file:
+      - api.dev.env
+    networks:
+      - mm-rental-project
