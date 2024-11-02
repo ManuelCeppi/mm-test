@@ -7,10 +7,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SignUpRequest;
-use App\Managers\AuthManager;
+use App\Managers\User\AuthManager;
 use App\Models\User;
-use App\Services\AuthService;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller

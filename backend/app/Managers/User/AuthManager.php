@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Managers;
+namespace App\Managers\User;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SignUpRequest;
 use App\Models\User;
-use App\Services\AuthService;
+use App\Services\User\AuthService;
+use App\Services\User\UserService;
 
 class AuthManager
 {
@@ -27,5 +28,13 @@ class AuthManager
         return $token;
     }
 
-    public function register(SignUpRequest $signUpRequest): User {}
+    public function register(SignUpRequest $signUpRequest): User
+    {
+        $createdUser = $this->userService->insert(new User([
+            "email" => $signUpRequest->email,
+            "password" => $signUpRequest->password
+        ]));
+
+        return $createdUser;
+    }
 }
