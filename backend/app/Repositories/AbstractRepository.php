@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Models\BaseModelInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use PDO;
 
 abstract class AbstractRepository implements BaseRepositoryInterface
@@ -22,6 +21,9 @@ abstract class AbstractRepository implements BaseRepositoryInterface
         $this->tableName = $instance->getTable();
     }
 
+    /**
+     * @param bool $readInstance Choose whether to get the read instance connection or the read/write
+     */
     public function getPdo(bool $readInstance): PDO
     {
         $connectionName = $readInstance ? $this->getConnectionName() . '::read' : $this->getConnectionName();
@@ -52,27 +54,32 @@ abstract class AbstractRepository implements BaseRepositoryInterface
         return $this->tableName;
     }
 
-    public function insert(BaseModelInterface $modelToInsert): BaseModelInterface
+    public function insert(Model $modelToInsert): Model
     {
         $modelToInsert->save();
         return $modelToInsert;
     }
 
-    public function get(string $uuid): ?Model
+    public function get(int $id): ?Model
     {
         // Get eloquent builder
-        $model = $this->getEloquentBuilder()->where('uuid', '=', $uuid)->first();
+        $model = $this->getEloquentBuilder()->where('id', '=', $id)->first();
         return $model;
     }
 
-    public function update(BaseModelInterface $modelToUpdate): BaseModelInterface
+    public function getAll(): Collection
+    {
+        return collect($this->getTableBuilder()->get()->all());
+    }
+
+    public function update(Model $modelToUpdate): Model
     {
         $modelToUpdate->save();
         return $modelToUpdate;
     }
 
-    public function delete(string $uuid): void
+    public function delete(int $id): void
     {
-        $this->getEloquentBuilder()->where('uuid', '=', $uuid)->delete();
+        $this->getEloquentBuilder()->where('id', '=', $id)->delete();
     }
 }

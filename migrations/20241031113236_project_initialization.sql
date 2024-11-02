@@ -24,9 +24,9 @@ CREATE TABLE scooters (
     battery_status DECIMAL(5,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (primary_station_id) REFERENCES station(id),
-    FOREIGN KEY (last_station_id) REFERENCES station(id),
-    FOREIGN KEY (current_station_id) REFERENCES station(id),
+    FOREIGN KEY (primary_station_id) REFERENCES stations(id),
+    FOREIGN KEY (last_station_id) REFERENCES stations(id),
+    FOREIGN KEY (current_station_id) REFERENCES stations(id),
     INDEX (primary_station_id),
     INDEX (last_station_id),
     INDEX (current_station_id)
@@ -57,7 +57,47 @@ CREATE TABLE mm_internal_users (
     user_id INT NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+-- stripe payments table
+CREATE TABLE payments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    intent_id VARCHAR(255) NOT NULL UNIQUE,
+    charge_id VARCHAR(255) NULL,
+    charge_description VARCHAR(255) NOT NULL,
+    charge_status ENUM('pending', 'failed', 'succeded', 'aborted') DEFAULT 'pending',
+    charged_at TIMESTAMP NULL,
+    user_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY charge_id_unique_constraint (charge_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+-- rentals
+CREATE TABLE rentals (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    payment_id INT NOT NULL,
+    payment_intent_id VARCHAR(255) NOT NULL UNIQUE,
+    starting_station_id INT NOT NULL,
+    ending_station_id INT NOT NULL,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NULL, 
+    duration_seconds INT NULL,
+    scooter_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status ENUM('starting', 'ongoing', 'finished') DEFAULT 'starting',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (payment_id) REFERENCES payments(id),
+    FOREIGN KEY (payment_intent_id) REFERENCES payments(intent_id),
+    FOREIGN KEY (starting_station_id) REFERENCES stations(id),
+    FOREIGN KEY (ending_station_id) REFERENCES stations(id),
+    FOREIGN KEY (scooter_id) REFERENCES scooters(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE mm_internal_users_permissions (
@@ -75,24 +115,10 @@ CREATE TABLE permissions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- stripe payments table
-CREATE TABLE payments (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    intent_id VARCHAR(255) NOT NULL UNIQUE,
-    charge_id VARCHAR(255) NULL,
-    charge_description VARCHAR(255) NOT NULL,
-    charge_status ENUM('pending', 'failed', 'succeded', 'aborted') DEFAULT 'pending',
-    charged_at TIMESTAMP NULL,
-    user_id INT NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY charge_id_unique_constraint (charge_id)
-) ENGINE=InnoDB;
-
 -- migrate:down
 DROP TABLE stations;
 DROP TABLE scooters;
+DROP TABLE rentals;
 DROP TABLE users;
 DROP TABLE payments;
 DROP TABLE mm_internal_users;

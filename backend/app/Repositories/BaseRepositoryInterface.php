@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Models\BaseModelInterface;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use PDO;
@@ -13,13 +12,15 @@ use PDO;
 interface BaseRepositoryInterface
 {
 
-    function insert(BaseModelInterface $modelToInsert): BaseModelInterface;
+    function insert(Model $modelToInsert): Model;
 
-    function update(BaseModelInterface $modelToUpdate): BaseModelInterface;
+    function update(Model $modelToUpdate): Model;
 
-    function get(string $uuid): ?Model;
+    function get(int $id): ?Model;
 
-    function delete(string $uuid): void;
+    function getAll(): Collection;
+
+    function delete(int $id): void;
 
     function getTableName(): string;
 

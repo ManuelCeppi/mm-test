@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Scooter extends Model
+class Station extends Model
 {
-    protected $table = 'scooters';
+    protected $table = 'stations';
 
     /**
      * The attributes that are mass assignable.
@@ -14,12 +14,11 @@ class Scooter extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'uid',
         'name',
-        'primary_station_id',
-        'last_station_id',
-        'current_station_id',
-        'status',
-        'battery_status'
+        'city',
+        'street',
+        'number',
+        'country_code',
+        'maximum_capacity'
     ];
 }
