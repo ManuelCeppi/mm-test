@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories;
+namespace App\Repositories\Interfaces;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +18,7 @@ interface BaseRepositoryInterface
 
     function get(int $id): ?Model;
 
-    function getAll(): Collection;
+    function getAll(int $limit, int $offset): Collection;
 
     function delete(int $id): void;
 

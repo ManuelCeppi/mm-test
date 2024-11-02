@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Station;
 
+use App\Repositories\Interfaces\StationRepositoryInterface;
 use App\Repositories\Scooter\ScooterRepository;
-use App\Repositories\Station\StationRepository;
 use App\Services\AbstractService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class StationService extends AbstractService
 {
     public function __construct(
-        private readonly StationRepository $stationRepository,
+        private readonly StationRepositoryInterface $stationRepository,
         private readonly ScooterRepository $scooterRepository
     ) {
         parent::__construct($stationRepository);
@@ -36,5 +36,10 @@ class StationService extends AbstractService
         // Getting parked scooters
         $parkedScooters = $this->getParkedScooters($stationId);
         return $station->maximum_capacity - $parkedScooters->count();
+    }
+
+    public function getStationsAvailabilities(int $limit = 10, int $offset = 0): Collection
+    {
+        return $this->stationRepository->getStationAvailabilities($limit, $offset);
     }
 }

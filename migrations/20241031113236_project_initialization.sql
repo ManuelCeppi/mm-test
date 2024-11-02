@@ -6,7 +6,7 @@ CREATE TABLE stations (
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
     street VARCHAR(255) NOT NULL,
-    number INT NOT NULL,
+    postal_code VARCHAR(10) NOT NULL,
     country_code CHAR(2) NOT NULL,
     maximum_capacity INT NOT NULL,
     INDEX(country_code)

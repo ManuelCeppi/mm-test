@@ -17,7 +17,7 @@ class Station extends Model
         'name',
         'city',
         'street',
-        'number',
+        'postal_code',
         'country_code',
         'maximum_capacity'
     ];
