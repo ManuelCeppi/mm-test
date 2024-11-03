@@ -15,7 +15,8 @@ class Scooter extends Model
      */
     protected $fillable = [
         'uid',
-        'name',
+        'model',
+        'license_plate',
         'primary_station_id',
         'last_station_id',
         'current_station_id',

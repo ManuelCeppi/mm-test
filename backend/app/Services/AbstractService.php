@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Repositories\BaseRepositoryInterface;
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use App\Services\Interfaces\BaseCrudServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -13,9 +13,9 @@ abstract class AbstractService implements BaseCrudServiceInterface
 {
     public function __construct(private readonly BaseRepositoryInterface $modelRepository) {}
 
-    public function getAll(): Collection
+    public function getAll(int $limit = 10, int $offset = 0): Collection
     {
-        return $this->modelRepository->getAll();
+        return $this->modelRepository->getAll($limit, $offset);
     }
 
     public function get(int $id): ?Model

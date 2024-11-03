@@ -6,7 +6,7 @@ CREATE TABLE stations (
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
     street VARCHAR(255) NOT NULL,
-    number INT NOT NULL,
+    postal_code VARCHAR(10) NOT NULL,
     country_code CHAR(2) NOT NULL,
     maximum_capacity INT NOT NULL,
     INDEX(country_code)
@@ -20,7 +20,7 @@ CREATE TABLE scooters (
     primary_station_id INT NOT NULL, -- the primary station of the scooter, the one where it first has been configurated
     last_station_id INT NOT NULL, -- the station where the last trip started
     current_station_id INT NULL, -- the station where it's currently located and in charging status
-    status ENUM('available', 'unavailable', 'faulted') DEFAULT 'available', 
+    status ENUM('available', 'unavailable', 'faulted', 'recharging', 'rented') DEFAULT 'available', 
     battery_status DECIMAL(5,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -44,6 +44,7 @@ CREATE TABLE users (
     stripe_customer_id CHAR(20) NULL,
     email_verified_at TIMESTAMP NULL,
     document_verified_at TIMESTAMP NULL,
+    auth_token VARCHAR(100) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (email),
@@ -51,7 +52,16 @@ CREATE TABLE users (
     UNIQUE KEY stripe_id_unique_constraint (stripe_customer_id)
 ) ENGINE=InnoDB;
 
--- TODO maybe roles and permissions?
+CREATE TABLE users_payment_methods (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    stripe_payment_method_id CHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    UNIQUE KEY stripe_payment_method_id_unique_constraint (stripe_payment_method_id)
+) ENGINE=InnoDB;
+
 CREATE TABLE mm_internal_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL UNIQUE,
@@ -69,11 +79,13 @@ CREATE TABLE payments (
     charge_status ENUM('pending', 'failed', 'succeded', 'aborted') DEFAULT 'pending',
     charged_at TIMESTAMP NULL,
     user_id INT NOT NULL,
+    payment_method_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY charge_id_unique_constraint (charge_id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (payment_method_id) REFERENCES users_payment_methods(id)
 ) ENGINE=InnoDB;
 
 -- rentals
@@ -83,13 +95,13 @@ CREATE TABLE rentals (
     payment_id INT NOT NULL,
     payment_intent_id VARCHAR(255) NOT NULL UNIQUE,
     starting_station_id INT NOT NULL,
-    ending_station_id INT NOT NULL,
+    ending_station_id INT NULL,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NULL, 
     duration_seconds INT NULL,
     scooter_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
-    status ENUM('starting', 'ongoing', 'finished') DEFAULT 'starting',
+    status ENUM('starting', 'ongoing', 'finished', 'failed') DEFAULT 'starting',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -100,21 +112,6 @@ CREATE TABLE rentals (
     FOREIGN KEY (scooter_id) REFERENCES scooters(id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE mm_internal_users_permissions (
-    user_id INT NOT NULL,
-    permission_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(user_id, permission_id)
-) ENGINE=InnoDB;
-
-CREATE TABLE permissions (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
 -- migrate:down
 DROP TABLE stations;
 DROP TABLE scooters;
@@ -122,5 +119,3 @@ DROP TABLE rentals;
 DROP TABLE users;
 DROP TABLE payments;
 DROP TABLE mm_internal_users;
-DROP TABLE mm_internal_users_permissions;
-DROP TABLE permissions;

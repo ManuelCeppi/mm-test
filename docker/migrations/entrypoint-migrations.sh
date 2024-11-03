@@ -9,3 +9,4 @@ DATABASE_URL=$DATABASE_URL_TEST_DB dbmate --migrations-dir ./migrations --no-dum
 
 echo "DB mate migrations completed with success"
 
+tail -f /var/log/*

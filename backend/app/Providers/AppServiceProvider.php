@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,5 +27,23 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('mm-internal-user', function (User $user) {
             return $user->checkIfIsInternalUser() === true;
         });
+
+        Auth::viaRequest(
+            'mm-token',
+            function (Request $request) {
+                $token = $request->bearerToken();
+
+                if (!$token) {
+                    return new AuthenticationException();
+                }
+
+                // Looking for the user, if found with the token, set the user, otherwise throw an exception
+                $user = User::where('auth_token', (string) $token)->first();
+                if (!$user) {
+                    return new AuthenticationException();
+                }
+                Auth::setUser($user);
+            }
+        );
     }
 }

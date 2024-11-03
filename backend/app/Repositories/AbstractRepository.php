@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -67,9 +68,12 @@ abstract class AbstractRepository implements BaseRepositoryInterface
         return $model;
     }
 
-    public function getAll(): Collection
+    public function getAll(int $limit, int $offset): Collection
     {
-        return collect($this->getTableBuilder()->get()->all());
+        return collect($this->getTableBuilder()
+            ->limit($limit)
+            ->offset($offset)
+            ->get());
     }
 
     public function update(Model $modelToUpdate): Model

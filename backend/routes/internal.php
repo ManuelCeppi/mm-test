@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RentalController;
 use App\Http\Controllers\ScooterController;
 use App\Http\Controllers\StationController;
 use App\Http\Middleware\InternalUserMiddleware;
@@ -24,6 +25,19 @@ Route::prefix('/mm')->group(function () {
                 Route::put('', [StationController::class, 'update']);
                 Route::delete('', [StationController::class, 'delete']);
             });
+            Route::get('/availabilities', [StationController::class, 'getStationsAvailabilities']);
+        });
+        Route::prefix('/rentals')->group(function () {
+            Route::get('/', [RentalController::class, 'getAll']);
+            Route::post('/', [RentalController::class, 'insert']);
+            Route::prefix('/{rentalId}')->group(function () {
+                Route::get('', [RentalController::class, 'get']);
+                Route::put('', [RentalController::class, 'update']);
+                Route::delete('', [RentalController::class, 'delete']);
+            });
+            Route::get('/history', [RentalController::class, 'getRentalsHistoryByUser']);
+            // Could have been {status} instead of hardcoded /ongoing
+            Route::get('/ongoing', [RentalController::class, 'getOngoingRentals']);
         });
     });
 });
