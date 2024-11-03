@@ -24,11 +24,10 @@ class StationRepository extends AbstractRepository implements StationRepositoryI
         $pdo = $this->getPDO(readInstance: true);
 
         $query = <<<SQL
-            SELECT 
-            stations.*, 
-            (stations.maximum_capacity - COUNT(scooters.id)) as available_spots FROM stations
-            JOIN scooters ON stations.id = scooters.current_station_id -- parked scooters
-            GROUP BY scooters.id
+            SELECT stations.*,
+            (stations.maximum_capacity - IF(ISNULL(scooters.id), 0, COUNT(scooters.id))) as available_spots FROM stations
+            LEFT JOIN scooters ON stations.id = scooters.current_station_id -- parked scooters
+            GROUP BY stations.id, scooters.id
             LIMIT :limit OFFSET :offset
         SQL;
 

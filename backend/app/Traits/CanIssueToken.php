@@ -10,7 +10,7 @@ trait CanIssueToken
     {
         /** @var User $currentUser */
         $currentUser = Auth::user();
-        $token = $currentUser->createToken('token')->plainTextToken;
+        $token = $currentUser->createToken('mm_rental_project_token')->plainTextToken;
         return $token;
     }
 }
