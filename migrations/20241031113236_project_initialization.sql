@@ -41,6 +41,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15),
+    default_payment_method_id INT NULL,
     stripe_customer_id CHAR(20) NULL,
     email_verified_at TIMESTAMP NULL,
     document_verified_at TIMESTAMP NULL,
@@ -49,6 +50,7 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (email),
     INDEX (stripe_customer_id),
+    FOREIGN KEY (default_payment_method_id) REFERENCES users_payment_methods(id)
     UNIQUE KEY stripe_id_unique_constraint (stripe_customer_id)
 ) ENGINE=InnoDB;
 
