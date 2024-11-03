@@ -6,4 +6,4 @@ namespace App\Services\Payment;
 
 use App\Services\AbstractService;
 
-class PaymentService extends AbstractService {}
+class PaymentIntentService extends AbstractService {}

@@ -35,4 +35,16 @@ class RentalController extends Controller
         $rentals = $this->rentalManager->getAll($limit, $offset);
         return response(['rentals' => $rentals], 200);
     }
+
+    public function startRental(Request $request, string $scooterUid): Response
+    {
+        $rental = $this->rentalManager->startRental($scooterId);
+        return response(['rental' => $rental], 200);
+    }
+
+    public function endRental(Request $request, string $scooterUid, int $rentalId): Response
+    {
+        $rental = $this->rentalManager->endRental($scooterUid, $rentalId);
+        return response(['rental' => $rental], 200);
+    }
 }

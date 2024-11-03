@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\App;
 
-class FormatResponse
+class FormatResponseMiddleware
 {
     /**
      * Handle an incoming request.

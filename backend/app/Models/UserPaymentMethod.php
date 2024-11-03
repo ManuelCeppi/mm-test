@@ -6,9 +6,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Station extends Model
+class UserPaymentMethod extends Model
 {
-    protected $table = 'stations';
+    protected $table = 'user_payment_methods';
 
     /**
      * The attributes that are mass assignable.
@@ -16,11 +16,7 @@ class Station extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'city',
-        'street',
-        'postal_code',
-        'country_code',
-        'maximum_capacity'
+        'user_id',
+        'payment_gateway_payment_method_id',
     ];
 }
