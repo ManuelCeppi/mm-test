@@ -210,6 +210,12 @@ class RentalManager
             // Now we can capture it with the right amount: first evaluating the amount to charge; This will trigger the webhook.
             $paymentIntent = $this->stripeApiService->capturePaymentIntent($paymentIntent->id, $totalAmount);
 
+            // Updating the scooter
+            $scooter = $this->scooterService->getByUid($scooterUid);
+            $scooter->status = 'recharging';
+            $scooter->current_station_id = $stationId;
+            $scooter->battery_level = $batteryLevel;
+            $scooter = $this->scooterService->update($scooter);
             DB::connection('mysql')->commit();
         } catch (\Exception $e) {
             DB::connection('mysql')->rollBack();
