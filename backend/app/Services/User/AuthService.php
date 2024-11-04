@@ -7,7 +7,6 @@ namespace App\Services\User;
 use App\Traits\CanIssueToken;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AuthService
 {
@@ -23,7 +22,6 @@ class AuthService
         if (!$validCretentials) {
             throw new AuthenticationException();
         }
-        Log::info("User with email $email logged in");
         return $this->issueToken();
     }
 }

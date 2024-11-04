@@ -11,6 +11,6 @@ trait CanIssueToken
         /** @var User $currentUser */
         $currentUser = Auth::user();
         $token = $currentUser->createToken('mm_rental_project_token')->plainTextToken;
-        return $token;
+        return explode('|', $token)[1];
     }
 }

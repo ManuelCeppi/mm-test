@@ -175,7 +175,7 @@ class RentalManager
             // - User has an ongoing rental
             // - Scooter is rented by the user
             // - The station where the scooter is parked has available spots
-            // - The scooter is parked in a station
+
             $rental = $this->rentalService->endRental($scooterUid, $rentalId);
             DB::connection('mysql')->commit();
         } catch (\Exception $e) {

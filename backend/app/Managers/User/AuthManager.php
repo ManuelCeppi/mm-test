@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\User\AuthService;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthManager
 {
@@ -30,7 +31,8 @@ class AuthManager
         // Saving the token in the database
         /** @var User $user */
         $user = Auth::user();
-        $user->auth_token = $token;
+
+        $user->auth_token = hash('sha256', $token);
         $this->userService->update($user);
         return $token;
     }

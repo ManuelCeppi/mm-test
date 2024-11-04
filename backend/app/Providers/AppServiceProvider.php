@@ -37,7 +37,8 @@ class AppServiceProvider extends ServiceProvider
                     throw new AuthenticationException();
                 }
                 // Looking for the user, if found with the token, set the user, otherwise throw an exception
-                $user = User::where('auth_token', (string) $token)->first();
+                $user = User::where('auth_token', (string) hash('sha256', $token))->first();
+                Log::info('User found: ' . $user);
                 if (!$user) {
                     throw new AuthenticationException();
                 }
