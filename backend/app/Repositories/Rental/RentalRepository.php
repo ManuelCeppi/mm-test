@@ -11,7 +11,7 @@ use App\Models\Rental;
 use App\Repositories\AbstractRepository;
 use App\Repositories\Interfaces\RentalRepositoryInterface;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class RentalRepository extends AbstractRepository implements RentalRepositoryInterface
 {

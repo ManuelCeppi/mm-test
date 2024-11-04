@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     protected $connection = 'mysql';
-    protected $table = 'payments';
+    protected $table = 'payment_intents';
 
     /**
      * The attributes that are mass assignable.

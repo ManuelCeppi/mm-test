@@ -42,8 +42,9 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15),
     default_payment_method_id INT NULL,
-    payment_gateway_customer_id CHAR(20) NULL,
+    payment_gateway_customer_id VARCHAR(100) NULL,
     email_verified_at TIMESTAMP NULL,
+    document_verification_id VARCHAR(100) NULL,
     document_verified_at TIMESTAMP NULL,
     auth_token VARCHAR(100) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,26 +54,26 @@ CREATE TABLE users (
     UNIQUE KEY payment_gateway_customer_id_unique_constraint (payment_gateway_customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
-CREATE TABLE `personal_access_tokens` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tokenable_type` VARCHAR(255) NOT NULL,
-  `tokenable_id` BIGINT UNSIGNED NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `token` VARCHAR(64) NOT NULL,
-  `abilities` TEXT,
-  `last_used_at` TIMESTAMP NULL DEFAULT NULL,
-  `expires_at` TIMESTAMP NULL DEFAULT NULL,
-  `created_at` TIMESTAMP NULL DEFAULT NULL,
-  `updated_at` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
-  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
+CREATE TABLE personal_access_tokens (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  tokenable_type VARCHAR(255) NOT NULL,
+  tokenable_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  token VARCHAR(64) NOT NULL,
+  abilities TEXT,
+  last_used_at TIMESTAMP NULL DEFAULT NULL,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NULL DEFAULT NULL,
+  updated_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY personal_access_tokens_token_unique (token),
+  KEY personal_access_tokens_tokenable_type_tokenable_id_index (`tokenable_type`,`tokenable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE users_payment_methods (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    payment_gateway_payment_method_id CHAR(20) NOT NULL,
+    payment_gateway_payment_method_id VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -99,6 +100,7 @@ CREATE TABLE payment_intents (
     charge_status ENUM('pending', 'failed', 'succeded', 'aborted') DEFAULT 'pending',
     charged_at TIMESTAMP NULL,
     user_id INT NOT NULL,
+    rental_id INT NOT NULL,
     payment_method_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -132,6 +134,17 @@ CREATE TABLE rentals (
     FOREIGN KEY (scooter_id) REFERENCES scooters(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
+
+CREATE TABLE payment_gateway_events (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    payment_gateway_event_id VARCHAR(255) NOT NULL UNIQUE,
+    processed BOOLEAN DEFAULT FALSE,
+    event_type VARCHAR(255) NOT NULL,
+    event_data JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- migrate:down
 DROP TABLE stations;
@@ -140,3 +153,6 @@ DROP TABLE rentals;
 DROP TABLE users;
 DROP TABLE payment_intents;
 DROP TABLE mm_internal_users;
+DROP TABLE users_payment_methods;
+DROP TABLE personal_access_tokens;
+DROP TABLE payment_gateway_events;

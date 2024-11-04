@@ -17,7 +17,6 @@ class ScooterController extends Controller
 
     public function getAll(Request $request): Response
     {
-        Log::info("Getting all scooters");
         $limit = intval($request->query("limit", 10));
         $offset = intval($request->query("offset", 0));
         $scooters = $this->scooterManager->getAll($limit, $offset);

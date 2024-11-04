@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Rental;
 
-use App\Repositories\Interfaces\RentalRepositoryInterface;
 use App\Repositories\Rental\RentalRepository;
 use App\Services\AbstractService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class RentalService extends AbstractService
 {

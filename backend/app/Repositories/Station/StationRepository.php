@@ -25,9 +25,9 @@ class StationRepository extends AbstractRepository implements StationRepositoryI
 
         $query = <<<SQL
             SELECT stations.*,
-            (stations.maximum_capacity - IF(ISNULL(scooters.id), 0, COUNT(scooters.id))) as available_spots FROM stations
+            (stations.maximum_capacity - count(scooters.id)) as available_spots FROM stations
             LEFT JOIN scooters ON stations.id = scooters.current_station_id -- parked scooters
-            GROUP BY stations.id, scooters.id
+            GROUP BY stations.id
             LIMIT :limit OFFSET :offset
         SQL;
 
