@@ -9,6 +9,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\UnauthorizedException;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
@@ -46,6 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Basic exception management
         $exceptions->renderable(function (BadRequestException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'bad_request',
                 'error_ex' => [
@@ -59,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->renderable(function (AuthenticationException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'not_authenticated',
                 'error_ex' => [
@@ -72,6 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->renderable(function (UnauthorizedException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'unauthorized',
                 'error_ex' => [
@@ -86,6 +90,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Resource not found
         $exceptions->renderable(function (NotFoundResourceException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'resource_not_found',
                 'error_ex' => [
@@ -100,6 +105,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Model not found exception
         $exceptions->renderable(function (ModelNotFoundException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'resource_not_found',
                 'error_ex' => [
@@ -114,6 +120,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Route not found
         $exceptions->renderable(function (NotFoundHttpException $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'route_not_found',
                 'error_ex' => [
@@ -128,6 +135,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Error not handled
         $exceptions->renderable(function (Throwable $e) {
+            \Sentry\captureException($e);
             return response()->json([
                 'error' => 'error_not_handled',
                 'error_ex' => [
