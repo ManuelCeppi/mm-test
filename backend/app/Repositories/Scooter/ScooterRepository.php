@@ -15,6 +15,11 @@ class ScooterRepository extends AbstractRepository
         parent::__construct(Scooter::class);
     }
 
+    public function getByUid(string $uid): ?Scooter
+    {
+        return $this->getEloquentBuilder()->where('uid', '=', $uid)->first();
+    }
+
     public function getParkedScootersByStation(int $stationId): Collection
     {
         $eloquentBuilder = $this->getEloquentBuilder();

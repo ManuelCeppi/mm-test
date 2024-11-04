@@ -22,7 +22,6 @@ class AuthService
         if (!$validCretentials) {
             throw new AuthenticationException();
         }
-
         return $this->issueToken();
     }
 }

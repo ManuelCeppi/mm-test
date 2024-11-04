@@ -16,16 +16,16 @@ class StationController extends Controller
 
     public function getStationsAvailabilities(Request $request): Response
     {
-        $limit = $request->query('limit') ?? 10;
-        $offset = $request->query('offset') ?? 0;
+        $limit = intval($request->query('limit') ?? 10);
+        $offset = intval($request->query('offset') ?? 0);
         $stationsAvailabilities = $this->stationManager->getStationsAvailabilities($limit, $offset);
         return response(['stationsAvailabilities' => $stationsAvailabilities], 200);
     }
 
     public function getAll(Request $request): Response
     {
-        $limit = $request->query('limit') ?? 10;
-        $offset = $request->query('offset') ?? 0;
+        $limit = intval($request->query('limit') ?? 10);
+        $offset = intval($request->query('offset') ?? 0);
         $stations = $this->stationManager->getAll($limit, $offset);
         return response(['stations' => $stations], 200);
     }

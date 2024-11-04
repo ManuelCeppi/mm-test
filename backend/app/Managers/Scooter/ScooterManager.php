@@ -8,7 +8,7 @@ use App\Http\Requests\Scooter\InsertScooterRequest;
 use App\Http\Requests\Scooter\UpdateScooterRequest;
 use App\Models\Scooter;
 use App\Services\Scooter\ScooterService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ScooterManager

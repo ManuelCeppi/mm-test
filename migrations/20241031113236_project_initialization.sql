@@ -9,8 +9,10 @@ CREATE TABLE stations (
     postal_code VARCHAR(10) NOT NULL,
     country_code CHAR(2) NOT NULL,
     maximum_capacity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX(country_code)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- scooters table
 CREATE TABLE scooters (
@@ -30,7 +32,7 @@ CREATE TABLE scooters (
     INDEX (primary_station_id),
     INDEX (last_station_id),
     INDEX (current_station_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- users table
 CREATE TABLE users (
@@ -39,28 +41,50 @@ CREATE TABLE users (
     surname VARCHAR(255) NOT NULL,
     country_code CHAR(2) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    birth_date DATE NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15),
-    stripe_customer_id CHAR(20) NULL,
+    default_payment_method_id INT NULL,
+    payment_gateway_customer_id VARCHAR(100) NULL,
     email_verified_at TIMESTAMP NULL,
+    document_verification_id VARCHAR(100) NULL,
     document_verified_at TIMESTAMP NULL,
     auth_token VARCHAR(100) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (email),
-    INDEX (stripe_customer_id),
-    UNIQUE KEY stripe_id_unique_constraint (stripe_customer_id)
-) ENGINE=InnoDB;
+    INDEX (payment_gateway_customer_id),
+    UNIQUE KEY payment_gateway_customer_id_unique_constraint (payment_gateway_customer_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+CREATE TABLE personal_access_tokens (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  tokenable_type VARCHAR(255) NOT NULL,
+  tokenable_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  token VARCHAR(64) NOT NULL,
+  abilities TEXT,
+  last_used_at TIMESTAMP NULL DEFAULT NULL,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NULL DEFAULT NULL,
+  updated_at TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY personal_access_tokens_token_unique (token),
+  KEY personal_access_tokens_tokenable_type_tokenable_id_index (`tokenable_type`,`tokenable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE users_payment_methods (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    stripe_payment_method_id CHAR(20) NOT NULL,
+    payment_gateway_payment_method_id VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    UNIQUE KEY stripe_payment_method_id_unique_constraint (stripe_payment_method_id)
-) ENGINE=InnoDB;
+    UNIQUE KEY payment_gateway_payment_method_id_unique_constraint (payment_gateway_payment_method_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- add foreign to users 
+ALTER TABLE users ADD FOREIGN KEY (default_payment_method_id) REFERENCES users_payment_methods(id);
 
 CREATE TABLE mm_internal_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -68,17 +92,18 @@ CREATE TABLE mm_internal_users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- stripe payments table
-CREATE TABLE payments (
+-- payment_intents table
+CREATE TABLE payment_intents (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    intent_id VARCHAR(255) NOT NULL UNIQUE,
+    payment_gateway_intent_id VARCHAR(255) NOT NULL UNIQUE,
     charge_id VARCHAR(255) NULL,
     charge_description VARCHAR(255) NOT NULL,
     charge_status ENUM('pending', 'failed', 'succeded', 'aborted') DEFAULT 'pending',
     charged_at TIMESTAMP NULL,
     user_id INT NOT NULL,
+    rental_id INT NOT NULL,
     payment_method_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -86,14 +111,14 @@ CREATE TABLE payments (
     UNIQUE KEY charge_id_unique_constraint (charge_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (payment_method_id) REFERENCES users_payment_methods(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- rentals
 CREATE TABLE rentals (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    payment_id INT NOT NULL,
-    payment_intent_id VARCHAR(255) NOT NULL UNIQUE,
+    payment_intent_id INT NOT NULL,
+    payment_gateway_intent_id VARCHAR(255) NOT NULL UNIQUE,
     starting_station_id INT NOT NULL,
     ending_station_id INT NULL,
     start_date TIMESTAMP NOT NULL,
@@ -105,17 +130,33 @@ CREATE TABLE rentals (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (payment_id) REFERENCES payments(id),
-    FOREIGN KEY (payment_intent_id) REFERENCES payments(intent_id),
+    FOREIGN KEY (payment_intent_id) REFERENCES payment_intents(id),
+    FOREIGN KEY (payment_gateway_intent_id) REFERENCES payment_intents(payment_gateway_intent_id),
     FOREIGN KEY (starting_station_id) REFERENCES stations(id),
     FOREIGN KEY (ending_station_id) REFERENCES stations(id),
     FOREIGN KEY (scooter_id) REFERENCES scooters(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
+
+CREATE TABLE payment_gateway_events (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    payment_gateway_event_id VARCHAR(255) NOT NULL UNIQUE,
+    payment_gateway VARCHAR(255) NOT NULL,
+    processed BOOLEAN DEFAULT FALSE,
+    type VARCHAR(255) NOT NULL,
+    data JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- migrate:down
 DROP TABLE stations;
 DROP TABLE scooters;
 DROP TABLE rentals;
 DROP TABLE users;
-DROP TABLE payments;
+DROP TABLE payment_intents;
 DROP TABLE mm_internal_users;
+DROP TABLE users_payment_methods;
+DROP TABLE personal_access_tokens;
+DROP TABLE payment_gateway_events;

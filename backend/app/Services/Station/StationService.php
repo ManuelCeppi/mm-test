@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services\Station;
 
-use App\Repositories\Interfaces\StationRepositoryInterface;
 use App\Repositories\Scooter\ScooterRepository;
+use App\Repositories\Station\StationRepository;
 use App\Services\AbstractService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StationService extends AbstractService
 {
     public function __construct(
-        private readonly StationRepositoryInterface $stationRepository,
+        private readonly StationRepository $stationRepository,
         private readonly ScooterRepository $scooterRepository
     ) {
         parent::__construct($stationRepository);

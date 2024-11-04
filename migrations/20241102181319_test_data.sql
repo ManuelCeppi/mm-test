@@ -43,11 +43,11 @@ INSERT INTO scooters (uid, name, primary_station_id, last_station_id, current_st
 ('04A6B7C8D9E0F1', 'Scooter X19', 19, 19, 4, 'unavailable', 40.40),
 ('04B7C8D9E0F1A2', 'Scooter X20', 20, 10, NULL, 'rented', 85.00);
 
-INSERT INTO users (name, surname, country_code, email, password, phone_number, stripe_customer_id, email_verified_at, document_verified_at) VALUES
-('Manuel', 'Ceppi', 'IT', 'manuel.ceppi@test.com', '$2a$12$ScAKOOgbiNEM7NbD3iogN.28PPjoFBmoI4ghq2f25wpQ8eU9u5leK', '1234567890', NULL, '2023-01-15 10:00:00', '2023-01-20 10:00:00'),
-('Luigi', 'Bianchi', 'IT', 'luigi.bianchi@test.com', '$2a$12$ScAKOOgbiNEM7NbD3iogN.28PPjoFBmoI4ghq2f25wpQ8eU9u5leK', '0987654321', 'cus_456DEF', '2023-02-10 10:00:00', NULL),
-('Giulia', 'Verdi', 'IT', 'giulia.verdi@test.com', '$2a$12$ScAKOOgbiNEM7NbD3iogN.28PPjoFBmoI4ghq2f25wpQ8eU9u5leK', '1122334455', 'cus_789GHI', '2023-03-05 12:00:00', '2023-03-10 12:00:00'),
-('Marco', 'Neri', 'IT', 'marco.neri@test.com', '$2a$12$ScAKOOgbiNEM7NbD3iogN.28PPjoFBmoI4ghq2f25wpQ8eU9u5leK', '5566778899', 'cus_012JKL', '2023-04-20 14:00:00', '2023-04-25 14:00:00');
+INSERT INTO users (name, surname, country_code, email, birth_date, password, phone_number, payment_gateway_customer_id, email_verified_at, document_verified_at) VALUES
+('Manuel', 'Ceppi', 'IT', 'manuel.ceppi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1234567890', NULL, '2023-01-15 10:00:00', '2023-01-20 10:00:00'),
+('Luigi', 'Bianchi', 'IT', 'luigi.bianchi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '0987654321', 'cus_456DEF', '2023-02-10 10:00:00', NULL),
+('Giulia', 'Verdi', 'IT', 'giulia.verdi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1122334455', 'cus_789GHI', '2023-03-05 12:00:00', '2023-03-10 12:00:00'),
+('Marco', 'Neri', 'IT', 'marco.neri@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '5566778899', 'cus_012JKL', '2023-04-20 14:00:00', '2023-04-25 14:00:00');
 
 INSERT INTO mm_internal_users (user_id) VALUES
 (1);

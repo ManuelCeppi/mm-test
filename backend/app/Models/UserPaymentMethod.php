@@ -6,15 +6,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class UserPaymentMethod extends Model
 {
     protected $connection = 'mysql';
-    protected $table = 'payment_intents';
+    protected $table = 'user_payment_methods';
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'payment_gateway_payment_method_id',
+    ];
 }

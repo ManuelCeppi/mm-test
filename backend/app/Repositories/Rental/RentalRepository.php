@@ -11,7 +11,7 @@ use App\Models\Rental;
 use App\Repositories\AbstractRepository;
 use App\Repositories\Interfaces\RentalRepositoryInterface;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class RentalRepository extends AbstractRepository implements RentalRepositoryInterface
 {
@@ -138,5 +138,12 @@ class RentalRepository extends AbstractRepository implements RentalRepositoryInt
         }
 
         return $rentalsByUser;
+    }
+
+    public function getByPaymentGatewayIntentId(string $paymentGatewayIntentId): ?Rental
+    {
+        $eq = $this->getEloquentBuilder();
+        $eq->where('payment_gateway_intent_id', $paymentGatewayIntentId);
+        return $eq->first();
     }
 }
