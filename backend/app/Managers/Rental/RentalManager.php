@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Managers\Rentals;
+namespace App\Managers\Rental;
 
 use App\Services\Rental\RentalService;
 use Illuminate\Database\Eloquent\Collection;

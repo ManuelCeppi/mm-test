@@ -2,8 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\InternalError;
-use App\Exceptions\InternalManagedErrorException;
 use Stripe\Event;
 use Stripe\Webhook;
 

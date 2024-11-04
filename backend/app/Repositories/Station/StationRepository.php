@@ -8,7 +8,7 @@ use App\BusinessModels\StationAvailabilityAggregatedModel;
 use App\Models\Station;
 use App\Repositories\AbstractRepository;
 use App\Repositories\Interfaces\StationRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class StationRepository extends AbstractRepository implements StationRepositoryInterface
 {

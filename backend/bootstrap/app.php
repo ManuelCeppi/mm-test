@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Middleware\FormatResponse;
+use App\Http\Middleware\FormatResponseMiddleware;
+use App\Http\Middleware\InternalUserMiddleware;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -31,14 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/auth.php'));
 
             // Internal apis
-            Route::middleware('')
+            Route::middleware('api')
                 ->prefix('internal')
                 ->name('internal.')
                 ->group(base_path('routes/internal.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(FormatResponse::class);
+        $middleware->append(FormatResponseMiddleware::class);
+        $middleware->alias([
+            'internal_user_middleware' => InternalUserMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Basic exception management

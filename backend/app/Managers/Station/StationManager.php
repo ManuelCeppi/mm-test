@@ -8,7 +8,7 @@ use App\Http\Requests\Station\InsertStationRequest;
 use App\Http\Requests\Station\UpdateStationRequest;
 use App\Models\Station;
 use App\Services\Station\StationService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StationManager

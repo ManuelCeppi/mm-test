@@ -10,7 +10,7 @@ CREATE TABLE stations (
     country_code CHAR(2) NOT NULL,
     maximum_capacity INT NOT NULL,
     INDEX(country_code)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- scooters table
 CREATE TABLE scooters (
@@ -30,7 +30,7 @@ CREATE TABLE scooters (
     INDEX (primary_station_id),
     INDEX (last_station_id),
     INDEX (current_station_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- users table
 CREATE TABLE users (
@@ -50,9 +50,24 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (email),
     INDEX (payment_gateway_customer_id),
-    FOREIGN KEY (default_payment_method_id) REFERENCES users_payment_methods(id)
     UNIQUE KEY payment_gateway_customer_id_unique_constraint (payment_gateway_customer_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+CREATE TABLE `personal_access_tokens` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tokenable_type` VARCHAR(255) NOT NULL,
+  `tokenable_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `token` VARCHAR(64) NOT NULL,
+  `abilities` TEXT,
+  `last_used_at` TIMESTAMP NULL DEFAULT NULL,
+  `expires_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE users_payment_methods (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -62,7 +77,10 @@ CREATE TABLE users_payment_methods (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE KEY payment_gateway_payment_method_id_unique_constraint (payment_gateway_payment_method_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- add foreign to users 
+ALTER TABLE users ADD FOREIGN KEY (default_payment_method_id) REFERENCES users_payment_methods(id);
 
 CREATE TABLE mm_internal_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -70,7 +88,7 @@ CREATE TABLE mm_internal_users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- payment_intents table
 CREATE TABLE payment_intents (
@@ -88,13 +106,13 @@ CREATE TABLE payment_intents (
     UNIQUE KEY charge_id_unique_constraint (charge_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (payment_method_id) REFERENCES users_payment_methods(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- rentals
 CREATE TABLE rentals (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    payment__intent_id INT NOT NULL,
+    payment_intent_id INT NOT NULL,
     payment_gateway_intent_id VARCHAR(255) NOT NULL UNIQUE,
     starting_station_id INT NOT NULL,
     ending_station_id INT NULL,
@@ -112,7 +130,7 @@ CREATE TABLE rentals (
     FOREIGN KEY (starting_station_id) REFERENCES stations(id),
     FOREIGN KEY (ending_station_id) REFERENCES stations(id),
     FOREIGN KEY (scooter_id) REFERENCES scooters(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 -- migrate:down

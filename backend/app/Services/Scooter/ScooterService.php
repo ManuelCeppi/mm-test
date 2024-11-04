@@ -11,7 +11,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ScooterService extends AbstractService
 {
-    public function __construct(private readonly ScooterRepository $scooterRepository) {}
+    public function __construct(private readonly ScooterRepository $scooterRepository)
+    {
+        parent::__construct($scooterRepository);
+    }
 
     public function checkIfIsRentable(int $scooterId): bool
     {

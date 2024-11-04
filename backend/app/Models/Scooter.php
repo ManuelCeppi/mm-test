@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Scooter extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'scooters';
 
     /**

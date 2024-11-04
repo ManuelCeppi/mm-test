@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rental extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'rentals';
 
     /**

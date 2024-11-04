@@ -6,9 +6,9 @@ namespace App\Repositories;
 
 use App\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PDO;
 
@@ -18,7 +18,7 @@ abstract class AbstractRepository implements BaseRepositoryInterface
 
     public function __construct(private readonly string $modelName)
     {
-        $instance = new ($this->modelName)();
+        $instance = new $this->modelName;
         $this->tableName = $instance->getTable();
     }
 
@@ -33,13 +33,15 @@ abstract class AbstractRepository implements BaseRepositoryInterface
 
     public function getEloquentBuilder(): Builder
     {
-        return ($this->modelName)::query();
+        $instance = new $this->modelName();
+        return $instance::query();
     }
 
     public function getConnectionName(): string
     {
         /** @var Model $instance */
-        $instance = new ($this->modelName)();
+        $instance = new $this->modelName();
+
         return $instance->getConnectionName();
     }
 

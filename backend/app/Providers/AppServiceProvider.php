@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,17 +33,15 @@ class AppServiceProvider extends ServiceProvider
             'mm-token',
             function (Request $request) {
                 $token = $request->bearerToken();
-
                 if (!$token) {
-                    return new AuthenticationException();
+                    throw new AuthenticationException();
                 }
-
                 // Looking for the user, if found with the token, set the user, otherwise throw an exception
                 $user = User::where('auth_token', (string) $token)->first();
                 if (!$user) {
-                    return new AuthenticationException();
+                    throw new AuthenticationException();
                 }
-                Auth::setUser($user);
+                return $user;
             }
         );
     }

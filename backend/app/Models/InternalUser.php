@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class InternalUser extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'mm_internal_users';
 
     public function user(): HasOne
