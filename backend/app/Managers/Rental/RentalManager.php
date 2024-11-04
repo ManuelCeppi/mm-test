@@ -7,6 +7,7 @@ namespace App\Managers\Rental;
 use App\Models\Payment;
 use App\Models\Rental;
 use App\Services\Payment\PaymentIntentService;
+use App\Services\Payment\PaymentMethodService;
 use App\Services\Rental\RentalService;
 use App\Services\Scooter\ScooterService;
 use App\Services\Station\StationService;
@@ -26,6 +27,7 @@ class RentalManager
         private readonly UserService $userService,
         private readonly StripeApiService $stripeApiService,
         private readonly StationService $stationService,
+        private readonly PaymentMethodService $paymentMethodService
     ) {}
 
     public function getRentalsHistoryByUser(int $userId, int $limit = 10, int $offset = 0): Collection
@@ -108,6 +110,9 @@ class RentalManager
             // 3 : saving rental element on our database
             // 4 : updating the scooter: setting status as rent, setting null as current_station_id
 
+            // Retrieving default payment method mapping
+            $paymentMethod = $this->paymentMethodService->get($user->default_payment_method_id);
+
             // TODO This should be a configuration value, maybe cached or stored in the database
             $startingAmount = 290; // 2.90€ base starting price saved in cents 
             $paymentIntent = $this->stripeApiService->createPaymentIntent([
@@ -115,7 +120,7 @@ class RentalManager
                 'amount' => $startingAmount,
                 'currency' => 'eur',
                 'customer' => $user->payment_gateway_customer_id,  // gateway customer id
-                'payment_method' => $user->default_payment_method_id,
+                'payment_method' => $paymentMethod->payment_gateway_payment_method_id,
                 'capture_method' => 'manual',  // This way we can confirm the payment later, delayed, with the capture() method
                 'confirm' => true,
                 'off_session' => true, // THe user is not directly involved in the payment process

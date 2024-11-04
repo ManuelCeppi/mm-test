@@ -17,4 +17,10 @@ class UserController extends Controller
         $user = $this->userManager->update($request);
         return response(['user' => $user], 200);
     }
+
+    public function registerPaymentMethod(Request $request): Response
+    {
+        $setupIntentClientSecret = $this->userManager->registerPaymentMethod($request);
+        return response(['setup_intent_client_secret' => $setupIntentClientSecret], 201);
+    }
 }

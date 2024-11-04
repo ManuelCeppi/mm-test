@@ -9,6 +9,8 @@ CREATE TABLE stations (
     postal_code VARCHAR(10) NOT NULL,
     country_code CHAR(2) NOT NULL,
     maximum_capacity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX(country_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 

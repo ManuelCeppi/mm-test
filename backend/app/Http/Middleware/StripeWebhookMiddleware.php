@@ -41,6 +41,12 @@ class StripeWebhookMiddleware
                     $endpointSecret = env('STRIPE_WEBHOOK_PI_FAILED_LIVE_SK');
                 }
                 break;
+            case Event::SETUP_INTENT_SUCCEEDED:
+                if (!$livemode) {
+                    $endpointSecret = env('STRIPE_WEBHOOK_SI_TEST_SK');
+                } else {
+                    $endpointSecret = env('STRIPE_WEBHOOK_SI_LIVE_SK');
+                }
             default:
                 throw new \Exception('Invalid stripe event type');
         }

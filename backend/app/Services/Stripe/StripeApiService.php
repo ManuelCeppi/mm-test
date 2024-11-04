@@ -6,6 +6,7 @@ namespace App\Services\Stripe;
 
 use Stripe\Customer;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\StripeClient;
 
 class StripeApiService
@@ -51,5 +52,15 @@ class StripeApiService
     {
         $customer = $this->client->customers->retrieve($customerId);
         return $customer;
+    }
+
+    /**
+     * Create a SetupIntent: the stripe object that will be used to confirm and store a payment method for a customer.
+     * @param array $setupIntentPayload
+     */
+    public function createSetupIntent(array $setupIntentPayload): SetupIntent
+    {
+        $setupIntent = $this->client->setupIntents->create($setupIntentPayload);
+        return $setupIntent;
     }
 }

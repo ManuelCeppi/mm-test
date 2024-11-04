@@ -17,4 +17,10 @@ class StripeController extends Controller
         $this->stripeManager->managePaymentIntent($request->input('webhookEvent'));
         return response(['message' => 'payment intent handled'], 200);
     }
+
+    public function handleSetupIntent(Request $request): Response
+    {
+        $this->stripeManager->manageSetupIntent($request->input('webhookEvent'));
+        return response(['message' => 'setup intent handled'], 200);
+    }
 }

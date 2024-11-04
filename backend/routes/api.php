@@ -14,7 +14,10 @@ Route::prefix('/mm')->group(function () {
         Route::get('/me', function () {
             return response(['user' => Auth::user()], 200);
         });
-        Route::patch('/me', [UserController::class, 'update']);
+        Route::patch('/update', [UserController::class, 'update']);
+        // Payment method registration
+        Route::post('/register-payment-method', [UserController::class, 'registerPaymentMethod']);
+        // TODO KYC registration
     });
     Route::prefix('/scooters')->middleware('auth:api')->group(function () {
         Route::prefix('/{scooterUid}')->group(function () {

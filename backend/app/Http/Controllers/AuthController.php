@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SignUpRequest;
 use App\Managers\User\AuthManager;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -23,15 +22,7 @@ class AuthController extends Controller
     public function register(SignUpRequest $request)
     {
         // Creating user
-        $this->authManager->register($request);
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'birth_date' => $request->birth_date,
-            'password' => bcrypt($request->password),
-        ]);
-
+        $user = $this->authManager->register($request);
         // Login
         Auth::login($user);
     }

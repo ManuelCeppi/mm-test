@@ -18,8 +18,10 @@ class SignUpRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
+            'surname' => ['required', 'string'],
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string', 'min:8'],
+            'country_code' => ['required', 'string'],
             'phone_number' => ['required', 'string'],
             'birth_date' => ['required', 'date'],
         ];
