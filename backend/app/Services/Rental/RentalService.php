@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Rental;
 
+use App\Models\Rental;
 use App\Repositories\Rental\RentalRepository;
 use App\Services\AbstractService;
 use Illuminate\Support\Collection;
@@ -33,5 +34,10 @@ class RentalService extends AbstractService
         );
 
         return $rentalsByUser;
+    }
+
+    public function getByPaymentGatewayIntentId(string $paymentGatewayIntentId): ?Rental
+    {
+        return $this->rentalRepository->getByPaymentGatewayIntentId($paymentGatewayIntentId);
     }
 }

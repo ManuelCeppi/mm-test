@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -13,9 +14,7 @@ Route::prefix('/mm')->group(function () {
         Route::get('/me', function () {
             return response(['user' => Auth::user()], 200);
         });
-        Route::patch('/me', function () {
-            return response(['user' => Auth::user()], 200);
-        });
+        Route::patch('/me', [UserController::class, 'update']);
     });
     Route::prefix('/scooters')->middleware('auth:api')->group(function () {
         Route::prefix('/{scooterUid}')->group(function () {

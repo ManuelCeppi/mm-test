@@ -13,4 +13,11 @@ class PaymentRepository extends AbstractRepository
     {
         parent::__construct(Payment::class);
     }
+
+    public function getByPaymentGatewayIntentId(string $paymentGatewayIntentId): ?Payment
+    {
+        $eq = $this->getEloquentBuilder();
+        $eq->where('payment_gateway_intent_id', $paymentGatewayIntentId);
+        return $eq->first();
+    }
 }

@@ -22,11 +22,13 @@ class AuthController extends Controller
 
     public function register(SignUpRequest $request)
     {
-
         // Creating user
+        $this->authManager->register($request);
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'birth_date' => $request->birth_date,
             'password' => bcrypt($request->password),
         ]);
 

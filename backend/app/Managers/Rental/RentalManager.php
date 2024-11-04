@@ -201,21 +201,30 @@ class RentalManager
 
             // Retrieve the payment intent from stripe
             $paymentIntent = $this->stripeApiService->getPaymentIntent($payment->payment_gateway_intent_id);
-
+            $endDate = now()->getTimestamp();
             // Evaluating the duration in seconds
-            $duration = now()->getTimestamp() - $rental->start_date;
+            $duration = $endDate - $rental->start_date;
+
             // TODO Random amounts... to think about
             $totalAmount = 290 + ($duration * 0.1); // 2.90€ + 0.1€ per second
 
+            // Closing here the rental: this way, even if the webhook fails, the rental is closed and the scooter can be rented again
+            $rental->amount = $totalAmount;
+            $rental->status = 'finished';
+            $rental->end_date = $endDate;
+            $rental->ending_station_id = $stationId;
+            $rental = $this->rentalService->update($rental);
+
             // Now we can capture it with the right amount: first evaluating the amount to charge; This will trigger the webhook.
             $paymentIntent = $this->stripeApiService->capturePaymentIntent($paymentIntent->id, $totalAmount);
-
+            // Updating the rental
             // Updating the scooter
             $scooter = $this->scooterService->getByUid($scooterUid);
             $scooter->status = 'recharging';
             $scooter->current_station_id = $stationId;
             $scooter->battery_level = $batteryLevel;
             $scooter = $this->scooterService->update($scooter);
+
             DB::connection('mysql')->commit();
         } catch (\Exception $e) {
             DB::connection('mysql')->rollBack();

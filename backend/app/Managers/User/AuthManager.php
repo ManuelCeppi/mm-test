@@ -41,6 +41,9 @@ class AuthManager
     {
         $createdUser = $this->userService->insert(new User([
             "email" => $signUpRequest->email,
+            "name" => $signUpRequest->name,
+            "phone_number" => $signUpRequest->phone_number,
+            "birth_date" => $signUpRequest->birth_date,
             "password" => bcrypt($signUpRequest->password),
         ]));
 

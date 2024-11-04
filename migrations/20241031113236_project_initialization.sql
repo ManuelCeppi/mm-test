@@ -39,6 +39,7 @@ CREATE TABLE users (
     surname VARCHAR(255) NOT NULL,
     country_code CHAR(2) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    birth_date DATE NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15),
     default_payment_method_id INT NULL,

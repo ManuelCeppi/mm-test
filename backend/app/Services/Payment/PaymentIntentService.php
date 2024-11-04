@@ -13,4 +13,9 @@ class PaymentIntentService extends AbstractService
     {
         parent::__construct($paymentIntentRepository);
     }
+
+    public function getByPaymentGatewayIntentId(string $paymentGatewayIntentId)
+    {
+        return $this->paymentIntentRepository->getByPaymentGatewayIntentId($paymentGatewayIntentId);
+    }
 }

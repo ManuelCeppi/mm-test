@@ -139,4 +139,11 @@ class RentalRepository extends AbstractRepository implements RentalRepositoryInt
 
         return $rentalsByUser;
     }
+
+    public function getByPaymentGatewayIntentId(string $paymentGatewayIntentId): ?Rental
+    {
+        $eq = $this->getEloquentBuilder();
+        $eq->where('payment_gateway_intent_id', $paymentGatewayIntentId);
+        return $eq->first();
+    }
 }
