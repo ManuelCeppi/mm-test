@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\PaymentGatewayEvent;
 use Stripe\Event;
 use Stripe\Webhook;
 
@@ -59,6 +60,16 @@ class StripeWebhookMiddleware
             throw new \Exception("Invalid signature on Stripe webhook: {$e->getMessage()}");
         }
 
+        // Add the event to db
+        $paymentGatewayEvent = new PaymentGatewayEvent();
+
+        $paymentGatewayEvent->payment_gateway_event_id = $event->id;
+        $paymentGatewayEvent->payment_gateway = 'stripe';
+        $paymentGatewayEvent->type = $eventType;
+        $paymentGatewayEvent->data = $payload;
+        $paymentGatewayEvent->processed = false;
+
+        $paymentGatewayEvent->save();
         // Add the event to the request
         $request->merge(['webhookEvent' => $event]);
 

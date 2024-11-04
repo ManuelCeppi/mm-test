@@ -139,9 +139,10 @@ ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
 CREATE TABLE payment_gateway_events (
     id INT PRIMARY KEY AUTO_INCREMENT,
     payment_gateway_event_id VARCHAR(255) NOT NULL UNIQUE,
+    payment_gateway VARCHAR(255) NOT NULL,
     processed BOOLEAN DEFAULT FALSE,
-    event_type VARCHAR(255) NOT NULL,
-    event_data JSON NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    data JSON NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;

@@ -19,9 +19,25 @@ class StripeApiService
         $this->client = new StripeClient(env("STRIPE_SK"));
     }
 
-    public function createPayment(array $paymentIntentPayload): PaymentIntent
+    public function createPaymentIntent(array $paymentIntentPayload): PaymentIntent
     {
         $intent = $this->client->paymentIntents->create($paymentIntentPayload);
+        return $intent;
+    }
+
+    public function getPaymentIntent(string $paymentId): PaymentIntent
+    {
+        $intent = $this->client->paymentIntents->retrieve($paymentId);
+        return $intent;
+    }
+
+    public function capturePaymentIntent(string $paymentId, $totalAmount = null): PaymentIntent
+    {
+        // If total amount is null, the assumption is that the initial amount is the total amount that is being captured
+        if ($totalAmount) {
+            $this->client->paymentIntents->update($paymentId, ['amount' => $totalAmount]);
+        }
+        $intent = $this->client->paymentIntents->capture($paymentId);
         return $intent;
     }
 

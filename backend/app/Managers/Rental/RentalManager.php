@@ -9,6 +9,7 @@ use App\Models\Rental;
 use App\Services\Payment\PaymentIntentService;
 use App\Services\Rental\RentalService;
 use App\Services\Scooter\ScooterService;
+use App\Services\Station\StationService;
 use App\Services\Stripe\StripeApiService;
 use App\Services\User\UserService;
 use Illuminate\Support\Collection;
@@ -24,6 +25,7 @@ class RentalManager
         private readonly PaymentIntentService $paymentService,
         private readonly UserService $userService,
         private readonly StripeApiService $stripeApiService,
+        private readonly StationService $stationService,
     ) {}
 
     public function getRentalsHistoryByUser(int $userId, int $limit = 10, int $offset = 0): Collection
@@ -108,7 +110,7 @@ class RentalManager
 
             // TODO This should be a configuration value, maybe cached or stored in the database
             $startingAmount = 290; // 2.90€ base starting price saved in cents 
-            $paymentIntent = $this->stripeApiService->createPayment([
+            $paymentIntent = $this->stripeApiService->createPaymentIntent([
                 'description' => 'Starting rental for scooter ' . $scooterUid . ' by customer ' . $user->payment_gateway_customer_id,
                 'amount' => $startingAmount,
                 'currency' => 'eur',
@@ -171,12 +173,43 @@ class RentalManager
     ) {
         try {
             DB::connection('mysql')->beginTransaction();
-            // TODO Check if user can end the rental
-            // - User has an ongoing rental
-            // - Scooter is rented by the user
-            // - The station where the scooter is parked has available spots
+            $user = Auth::user();
+            // Check if user can end the rental
+            $rental = $this->rentalService->get($rentalId);
+            if (!$rental) {
+                throw new ModelNotFoundException('Rental not found!');
+            }
 
-            $rental = $this->rentalService->endRental($scooterUid, $rentalId);
+            if ($rental->user_id !== $user->id) {
+                throw new \Exception('User is not the owner of the rental!');
+            }
+
+            if ($rental->status !== 'ongoing') {
+                throw new \Exception('Rental is not ongoing!');
+            }
+            // Retrieve the payment from our database
+            $payment = $this->paymentService->get($rental->payment_intent_id);
+            if (!$payment) {
+                throw new ModelNotFoundException('Payment not found!');
+            }
+            // Check if the station has available spots
+            $stationCapacity = $this->stationService->getRemainingCapacity($stationId);
+
+            if ($stationCapacity === 0) {
+                throw new \Exception('The station is full!');
+            }
+
+            // Retrieve the payment intent from stripe
+            $paymentIntent = $this->stripeApiService->getPaymentIntent($payment->payment_gateway_intent_id);
+
+            // Evaluating the duration in seconds
+            $duration = now()->getTimestamp() - $rental->start_date;
+            // TODO Random amounts... to think about
+            $totalAmount = 290 + ($duration * 0.1); // 2.90€ + 0.1€ per second
+
+            // Now we can capture it with the right amount: first evaluating the amount to charge; This will trigger the webhook.
+            $paymentIntent = $this->stripeApiService->capturePaymentIntent($paymentIntent->id, $totalAmount);
+
             DB::connection('mysql')->commit();
         } catch (\Exception $e) {
             DB::connection('mysql')->rollBack();
