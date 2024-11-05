@@ -18,7 +18,7 @@ Route::prefix('/mm')->group(function () {
                 Route::post('/', [ScooterController::class, 'insert']);
                 Route::prefix('/{scooterId}')->group(function () {
                     Route::get('', [ScooterController::class, 'get']);
-                    Route::put('', [ScooterController::class, 'update']);
+                    Route::patch('', [ScooterController::class, 'update']);
                     Route::delete('', [ScooterController::class, 'delete']);
                 });
             });
@@ -28,7 +28,7 @@ Route::prefix('/mm')->group(function () {
                 Route::post('/', [StationController::class, 'insert']);
                 Route::prefix('/{stationId}')->group(function () {
                     Route::get('', [StationController::class, 'get']);
-                    Route::put('', [StationController::class, 'update']);
+                    Route::patch('', [StationController::class, 'update']);
                     Route::delete('', [StationController::class, 'delete']);
                 });
             });
