@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserPaymentMethod extends Model
 {
     protected $connection = 'mysql';
-    protected $table = 'user_payment_methods';
+    protected $table = 'users_payment_methods';
 
     /**
      * The attributes that are mass assignable.

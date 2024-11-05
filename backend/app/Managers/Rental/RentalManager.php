@@ -16,6 +16,7 @@ use App\Services\Scooter\ScooterService;
 use App\Services\Station\StationService;
 use App\Services\Stripe\StripeApiService;
 use App\Services\User\UserService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +86,7 @@ class RentalManager
             // - Scooter is available, and with battery charged (100%)
 
             $checkIfIsEligible = $this->userService->checkIfUserIsEligibleForRent($user->id);
+
             if (!$checkIfIsEligible->documentVerificationId) {
                 throw new \Exception("User must have a valid driver's license inserted");
             }
@@ -97,16 +99,20 @@ class RentalManager
                 throw new \Exception("User must have a valid payment method!");
             }
 
-            if ($checkIfIsEligible->unpaidRentalsCount > 0) {
-                throw new \Exception("User has some unpaid rentals. Close the payments before starting a new rent.");
-            }
-
             if ($checkIfIsEligible->ongoingRentalsCount !== 0) {
                 throw new \Exception("Can't start a new rent with an ongoing one!");
             }
 
-            $isScooterAvailable = $this->scooterService->checkIfIsRentableByUid($scooterUid);
+            if ($checkIfIsEligible->unpaidRentalsCount > 0) {
+                throw new \Exception("User has some unpaid rentals. Close the payments before starting a new rent.");
+            }
 
+            $scooter = $this->scooterService->getByUid($scooterUid);
+            if (!$scooter) {
+                throw new ModelNotFoundException('Scooter not found!');
+            }
+
+            $isScooterAvailable = $this->scooterService->checkBatteryLevelAndStatus($scooter);
             if (!$isScooterAvailable) {
                 throw new \Exception("The selected scooter is not available.");
             }
@@ -129,8 +135,10 @@ class RentalManager
                 $actualRate->amount_per_hour = 36; // 36€ per hour
             }
 
+            $description = 'Starting rental for scooter ' . $scooterUid . ' by customer ' . $user->payment_gateway_customer_id;
+            // TODO Comment for testing purposes.
             $paymentIntent = $this->stripeApiService->createPaymentIntent([
-                'description' => 'Starting rental for scooter ' . $scooterUid . ' by customer ' . $user->payment_gateway_customer_id,
+                'description' => $description,
                 'amount' => ($actualRate->base_amount) * 100, // Amount in cents (stripe manages amounts in cents)
                 'currency' => 'eur',
                 'customer' => $user->payment_gateway_customer_id,  // gateway customer id
@@ -144,27 +152,28 @@ class RentalManager
                 ]
             ]);
 
+
             $rental = new Rental();
             $rental->user_id = $user->id;
-            $rental->scooter_id = $scooterUid;
+            $rental->scooter_id = $scooter->id;
+            $rental->starting_station_id = $scooter->current_station_id;
             $rental->status = 'ongoing';
-            $rental->start_date = now()->getTimestamp();
+            $rental->start_date = now('UTC');
             $rental->end_date = null;
+            $rental->rate_id = $actualRate->id;
             $rental->amount = $actualRate->base_amount;
             $rental = $this->rentalService->insert($rental);
 
             // saving the payment intent on our database
             $payment = new Payment();
             $payment->user_id = $user->id;
-            $payment->payment_gateway_intent_id = $paymentIntent->id;
+            $payment->charge_description = $description;
+            $payment->payment_gateway_intent_id = $paymentIntent->id; // TODO Decomment for testing purposes. 'test_payment_intent_' . now()->getTimestamp();
             $payment->amount = $actualRate->base_amount;
-            $payment->status = 'pending'; // After
+            $payment->charge_status = 'pending'; // After
             $payment->payment_method_id = $user->default_payment_method_id;
             $payment->rental_id = $rental->id;
             $payment = $this->paymentService->insert($payment);
-
-
-            $payment = $this->paymentService->update($payment);
 
             // updating the scooter
             $scooter = $this->scooterService->getByUid($scooterUid);
@@ -206,26 +215,28 @@ class RentalManager
 
             // Check if the station has available spots
             $stationCapacity = $this->stationService->getRemainingCapacity($stationId);
-
             if ($stationCapacity === 0) {
                 throw new \Exception('The station is full!');
             }
+
+            // Retrieving the scooter associated with the rental
+            $scooter = $this->scooterService->get($rental->scooter_id);
+            if ($scooter->uid !== $scooterUid) {
+                throw new \Exception('Scooter does not match the rental!');
+            }
+
             // Retrieve the payment associated with the rental
             $payment = $this->paymentService->getByRentalIdAndStatus($rentalId, PaymentStatus::PENDING);
-            // Retrieve the payment intent from stripe
-            $paymentIntent = $this->stripeApiService->getPaymentIntent($payment->payment_gateway_intent_id);
-            $endDate = now()->getTimestamp();
-            // Evaluating the duration in seconds
-            $duration = $endDate - $rental->start_date;
-            // Rate retrieve
-            $rate = $this->rateService->get($rental->rate_id);
 
-
-            $totalAmount = $rate->base_amount + ($duration * $rate->amount_per_second);
+            // Evaluating total amount
+            $endDate = now('UTC');
+            $duration = $endDate->getTimestamp() - Carbon::parse($rental->start_date)->getTimestamp();
+            $totalAmount = $this->rateService->evaluateRentalAmountByDurationInSeconds($rental, $duration);
 
             // Closing here the rental: this way, even if the webhook fails, the rental is closed and the scooter can be rented again
             $rental->amount = $totalAmount;
             $rental->status = 'finished';
+            $rental->duration_seconds = $duration;
             $rental->end_date = $endDate;
             $rental->ending_station_id = $stationId;
             $rental = $this->rentalService->update($rental);
@@ -236,12 +247,13 @@ class RentalManager
             $scooter->current_station_id = $stationId;
             $scooter->battery_level = $batteryLevel;
             $scooter = $this->scooterService->update($scooter);
+
             // Committing before the capture: 
             // this way, if the capture fails, the rental is already closed, the scooter is available again and the system can proceed eventually with the payment, on a second attempt.
             DB::connection('mysql')->commit();
-
             // Now we can capture it with the right amount: first evaluating the amount to charge; This will trigger the webhook.
-            $paymentIntent = $this->stripeApiService->capturePaymentIntent($paymentIntent->id, $totalAmount);
+            // TODO To Commenting for testing purposes.
+            $this->stripeApiService->capturePaymentIntent($payment->payment_gateway_intent_id, $totalAmount);
         } catch (\Exception $e) {
             DB::connection('mysql')->rollBack();
             throw $e;

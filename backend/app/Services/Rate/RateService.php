@@ -6,8 +6,10 @@ declare(strict_types=1);
 namespace App\Services\Rate;
 
 use App\Models\Rate;
-use App\Repositories\Payment\RateRepository;
+use App\Models\Rental;
+use App\Repositories\Rate\RateRepository;
 use App\Services\AbstractService;
+use Illuminate\Support\Facades\Log;
 
 class RateService extends AbstractService
 {
@@ -19,5 +21,15 @@ class RateService extends AbstractService
     public function getActualValidRate(): ?Rate
     {
         return $this->rateRepository->getActualValidRate();
+    }
+
+    public function evaluateRentalAmountByDurationInSeconds(Rental $rental, int $durationInSeconds): float
+    {
+        // Retrieving rate
+        $rate = $this->get($rental->rate_id);
+        Log::info('Duration: ' . $durationInSeconds);
+        $totalAmount = $rate->base_amount + ($durationInSeconds * $rate->amount_per_second);
+        Log::info('Total amount: ' . $totalAmount);
+        return $totalAmount;
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Scooter;
 use App\Repositories\Scooter\ScooterRepository;
 use App\Services\AbstractService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 class ScooterService extends AbstractService
 {
@@ -29,11 +30,7 @@ class ScooterService extends AbstractService
         if (!$scooter) {
             throw new ModelNotFoundException("Scooter with id {$scooterId} not found!");
         }
-
-        $isFullyCharged = $scooter->battery_status == 100;
-        $isAvailable = $scooter->status === ScooterStatus::AVAILABLE;
-
-        return $isFullyCharged && $isAvailable;
+        return $this->checkBatteryLevelAndStatus($scooter);
     }
 
     public function checkIfIsRentableByUid(string $uid): bool
@@ -44,9 +41,13 @@ class ScooterService extends AbstractService
             throw new ModelNotFoundException("Scooter with uid {$uid} not found!");
         }
 
-        $isFullyCharged = $scooter->battery_status == 100;
-        $isAvailable = $scooter->status === ScooterStatus::AVAILABLE;
+        return $this->checkBatteryLevelAndStatus($scooter);
+    }
 
+    public function checkBatteryLevelAndStatus(Scooter $scooter): bool
+    {
+        $isFullyCharged = floor($scooter->battery_level) == 100;
+        $isAvailable = $scooter->status === ScooterStatus::AVAILABLE->value;
         return $isFullyCharged && $isAvailable;
     }
 }

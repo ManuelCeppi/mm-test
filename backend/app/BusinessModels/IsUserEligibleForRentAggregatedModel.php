@@ -13,7 +13,7 @@ class IsUserEligibleForRentAggregatedModel
         public readonly string $name,
         public readonly string $email,
         public readonly string $phoneNumber,
-        public readonly ?string $defaultPaymentMethodId,
+        public readonly ?int $defaultPaymentMethodId,
         public readonly ?string $paymentGatewayCustomerId,
         public readonly ?DateTimeInterface $documentVerifiedAt,
         public readonly ?DateTimeInterface $emailVerifiedAt,

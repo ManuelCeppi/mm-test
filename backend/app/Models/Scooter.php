@@ -24,6 +24,10 @@ class Scooter extends Model
         'last_station_id',
         'current_station_id',
         'status',
-        'battery_status'
+        'battery_level'
+    ];
+
+    protected $casts = [
+        'battery_level' => 'float'
     ];
 }

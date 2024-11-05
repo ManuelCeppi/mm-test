@@ -21,7 +21,7 @@ INSERT INTO stations (name, city, street, postal_code, country_code, maximum_cap
 ('Station S', 'MusixMatch town', 'Office Park 78', '47921', 'MM', 30),
 ('Station T', 'MusixMatch town', 'Backend Brewery 88', '38122', 'MM', 25);
 
-INSERT INTO scooters (uid, name, primary_station_id, last_station_id, current_station_id, status, battery_status) VALUES
+INSERT INTO scooters (uid, name, primary_station_id, last_station_id, current_station_id, status, battery_level) VALUES
 ('04A1B2C3D4E5F6', 'Scooter X1', 1, 1, 1, 'available', 100.00),
 ('04B2C3D4E5F6A7', 'Scooter X2', 2, 2, 2, 'available', 100.00),
 ('04C3D4E5F6A7B8', 'Scooter X3', 3, 3, 3, 'faulted', 45.20),
@@ -43,18 +43,24 @@ INSERT INTO scooters (uid, name, primary_station_id, last_station_id, current_st
 ('04A6B7C8D9E0F1', 'Scooter X19', 19, 19, 4, 'unavailable', 40.40),
 ('04B7C8D9E0F1A2', 'Scooter X20', 20, 10, NULL, 'rented', 85.00);
 
-INSERT INTO users (name, surname, country_code, email, birth_date, password, phone_number, payment_gateway_customer_id, email_verified_at, document_verified_at) VALUES
-('Manuel', 'Ceppi', 'IT', 'manuel.ceppi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1234567890', NULL, '2023-01-15 10:00:00', '2023-01-20 10:00:00'),
-('Luigi', 'Bianchi', 'IT', 'luigi.bianchi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '0987654321', 'cus_456DEF', '2023-02-10 10:00:00', NULL),
-('Giulia', 'Verdi', 'IT', 'giulia.verdi@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1122334455', 'cus_789GHI', '2023-03-05 12:00:00', '2023-03-10 12:00:00'),
-('Marco', 'Neri', 'IT', 'marco.neri@test.com', "1990-01-15", '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '5566778899', 'cus_012JKL', '2023-04-20 14:00:00', '2023-04-25 14:00:00');
+
+INSERT INTO users (name, surname, country_code, email, birth_date, default_payment_method_id, password, phone_number, payment_gateway_customer_id, email_verified_at, document_verified_at, document_verification_id) VALUES
+('Manuel', 'Ceppi', 'IT', 'manuel.ceppi@test.com', "1990-01-15", NULL, '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1234567890', 'cus_456DsadasEF', '2023-01-15 10:00:00', '2023-01-20 10:00:00', "test_ver_id"),
+('Luigi', 'Bianchi', 'IT', 'luigi.bianchi@test.com', "1990-01-15", NULL, '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '0987654321', NULL, '2023-02-10 10:00:00', NULL, NULL),
+('Giulia', 'Verdi', 'IT', 'giulia.verdi@test.com', "1990-01-15", NULL, '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '1122334455', 'cus_789GHI', '2023-03-05 12:00:00', '2023-03-10 12:00:00', "test_ver_2_id"),
+('Marco', 'Neri', 'IT', 'marco.neri@test.com', "1990-01-15", NULL, '$2y$12$w5OR8VfTYgVFYsLbbTp/6ur1vLdWiTRcpV/xarG7z6YziSnzc7dfm', '5566778899', 'cus_012JKL', '2023-04-20 14:00:00', '2023-04-25 14:00:00', "test_ver_3_id");
+
+INSERT INTO users_payment_methods (user_id, payment_gateway_payment_method_id) VALUES
+(1, "test_stripe_payment_id");
+
+UPDATE users SET default_payment_method_id = 1 where id = 1;
 
 INSERT INTO mm_internal_users (user_id) VALUES
 (1);
 
 INSERT INTO rates(name, description, base_amount, valid_from, valid_to, amount_per_hour, amount_per_minute, amount_per_second) VALUES
-('Basic Rate', NULL, 2.9, '2023-01-01 00:00:00', NULL, 2.9, 0.6, 0.001),
-('Premium Rate', NULL, 4.9, '2023-01-01 00:00:00', "2023-10-01 00:00:00", 4.9, 1.2, 0.002);
+('Basic Rate', NULL, 2.9, '2023-01-01 00:00:00', NULL, 2.9, 0.6, 0.01),
+('Premium Rate', NULL, 4.9, '2023-01-01 00:00:00', "2023-10-01 00:00:00", 4.9, 1.2, 0.02);
 
 
 -- migrate:down
@@ -65,3 +71,5 @@ TRUNCATE TABLE users;
 TRUNCATE TABLE payments;
 TRUNCATE TABLE mm_internal_users;
 TRUNCATE TABLE users_payment_methods;
+TRUNCATE TABLE personal_access_tokens;
+TRUNCATE TABLE rates;
