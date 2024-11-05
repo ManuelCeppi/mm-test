@@ -17,7 +17,7 @@ class StripeApiService
         // TODO Simplified: with stripe you can manage different key/live mode combinations, this way you can test production with test keys and data, 
         // so that it points to stripe test environment, or production (livemode = false);
         // Here i'm just putting a SK get from env, so you just discriminate the key by the environment itself.
-        $this->client = new StripeClient(env("STRIPE_SK"));
+        $this->client = new StripeClient(env("STRIPE_API_KEY"));
     }
 
     public function createPaymentIntent(array $paymentIntentPayload): PaymentIntent
