@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ScooterStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Scooter extends Model
@@ -28,6 +29,7 @@ class Scooter extends Model
     ];
 
     protected $casts = [
-        'battery_level' => 'float'
+        'battery_level' => 'float',
+        'status' => ScooterStatus::class
     ];
 }

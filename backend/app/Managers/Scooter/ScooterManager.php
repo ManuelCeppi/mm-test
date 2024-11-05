@@ -49,7 +49,6 @@ class ScooterManager
         $this->get($id);
 
         // TODO Check if has associations with other entities
-
         $this->scooterService->delete($id);
     }
 }

@@ -47,7 +47,7 @@ class ScooterService extends AbstractService
     public function checkBatteryLevelAndStatus(Scooter $scooter): bool
     {
         $isFullyCharged = floor($scooter->battery_level) == 100;
-        $isAvailable = $scooter->status === ScooterStatus::AVAILABLE->value;
+        $isAvailable = $scooter->status === ScooterStatus::AVAILABLE;
         return $isFullyCharged && $isAvailable;
     }
 }

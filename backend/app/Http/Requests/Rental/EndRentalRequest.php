@@ -17,7 +17,7 @@ class EndRentalRequest extends FormRequest
     {
         return [
             'station_id' => ['required', 'integer'],
-            'battery_level' => ['required', 'numeric'],
+            'battery_level' => ['required', 'numeric', 'min:0', 'max:100'],
         ];
     }
 }

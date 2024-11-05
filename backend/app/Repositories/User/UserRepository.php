@@ -16,7 +16,7 @@ class UserRepository extends AbstractRepository
         parent::__construct(User::class);
     }
 
-    public function checkIfUserIsEligibleForRent(int $userId): IsUserEligibleForRentAggregatedModel
+    public function getUserEligibileForRentAggregatedModel(int $userId): IsUserEligibleForRentAggregatedModel
     {
         $pdo = $this->getPdo(readInstance: true);
 

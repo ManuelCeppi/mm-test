@@ -27,9 +27,7 @@ class RateService extends AbstractService
     {
         // Retrieving rate
         $rate = $this->get($rental->rate_id);
-        Log::info('Duration: ' . $durationInSeconds);
         $totalAmount = $rate->base_amount + ($durationInSeconds * $rate->amount_per_second);
-        Log::info('Total amount: ' . $totalAmount);
         return $totalAmount;
     }
 }

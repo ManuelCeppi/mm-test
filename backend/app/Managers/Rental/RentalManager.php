@@ -71,6 +71,7 @@ class RentalManager
         return $this->rentalService->getAll($limit, $offset);
     }
 
+    // TODO On start and end the best thing would have been better to have custom exceptions with custom codes, so the frontend could have handled them better.
     public function startRental(string $scooterUid): Rental
     {
         try {
@@ -85,27 +86,8 @@ class RentalManager
             // - User has a valid driver's license inserted, so valid document updated on stripe with identity (KYC)
             // - Scooter is available, and with battery charged (100%)
 
-            $checkIfIsEligible = $this->userService->checkIfUserIsEligibleForRent($user->id);
-
-            if (!$checkIfIsEligible->documentVerificationId) {
-                throw new \Exception("User must have a valid driver's license inserted");
-            }
-
-            if (!$checkIfIsEligible->emailVerifiedAt) {
-                throw new \Exception("User must have a verified email!");
-            }
-
-            if (!$checkIfIsEligible->defaultPaymentMethodId) {
-                throw new \Exception("User must have a valid payment method!");
-            }
-
-            if ($checkIfIsEligible->ongoingRentalsCount !== 0) {
-                throw new \Exception("Can't start a new rent with an ongoing one!");
-            }
-
-            if ($checkIfIsEligible->unpaidRentalsCount > 0) {
-                throw new \Exception("User has some unpaid rentals. Close the payments before starting a new rent.");
-            }
+            // This throws exceptions
+            $this->userService->checkIfUserIsEligibleForRent($user->id);
 
             $scooter = $this->scooterService->getByUid($scooterUid);
             if (!$scooter) {
