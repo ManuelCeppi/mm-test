@@ -12,7 +12,7 @@ CREATE TABLE stations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX(country_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- scooters table
 CREATE TABLE scooters (
@@ -28,11 +28,8 @@ CREATE TABLE scooters (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (primary_station_id) REFERENCES stations(id),
     FOREIGN KEY (last_station_id) REFERENCES stations(id),
-    FOREIGN KEY (current_station_id) REFERENCES stations(id),
-    INDEX (primary_station_id),
-    INDEX (last_station_id),
-    INDEX (current_station_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+    FOREIGN KEY (current_station_id) REFERENCES stations(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- users table
 CREATE TABLE users (
@@ -55,7 +52,7 @@ CREATE TABLE users (
     INDEX (email),
     INDEX (payment_gateway_customer_id),
     UNIQUE KEY payment_gateway_customer_id_unique_constraint (payment_gateway_customer_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE personal_access_tokens (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -71,7 +68,7 @@ CREATE TABLE personal_access_tokens (
   PRIMARY KEY (id),
   UNIQUE KEY personal_access_tokens_token_unique (token),
   KEY personal_access_tokens_tokenable_type_tokenable_id_index (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE users_payment_methods (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -81,7 +78,7 @@ CREATE TABLE users_payment_methods (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE KEY payment_gateway_payment_method_id_unique_constraint (payment_gateway_payment_method_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- add foreign to users 
 ALTER TABLE users ADD FOREIGN KEY (default_payment_method_id) REFERENCES users_payment_methods(id);
@@ -92,7 +89,7 @@ CREATE TABLE mm_internal_users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- payment_intents table
 CREATE TABLE payment_intents (
@@ -111,14 +108,12 @@ CREATE TABLE payment_intents (
     UNIQUE KEY charge_id_unique_constraint (charge_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (payment_method_id) REFERENCES users_payment_methods(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- rentals
 CREATE TABLE rentals (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    payment_intent_id INT NOT NULL,
-    payment_gateway_intent_id VARCHAR(255) NOT NULL UNIQUE,
     starting_station_id INT NOT NULL,
     ending_station_id INT NULL,
     start_date TIMESTAMP NOT NULL,
@@ -130,12 +125,10 @@ CREATE TABLE rentals (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (payment_intent_id) REFERENCES payment_intents(id),
-    FOREIGN KEY (payment_gateway_intent_id) REFERENCES payment_intents(payment_gateway_intent_id),
     FOREIGN KEY (starting_station_id) REFERENCES stations(id),
     FOREIGN KEY (ending_station_id) REFERENCES stations(id),
     FOREIGN KEY (scooter_id) REFERENCES scooters(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
 
@@ -148,7 +141,7 @@ CREATE TABLE payment_gateway_events (
     data JSON NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- migrate:down
 DROP TABLE stations;
