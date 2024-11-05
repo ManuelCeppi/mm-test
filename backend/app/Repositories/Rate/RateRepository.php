@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories\Payment;
+namespace App\Repositories\Rate;
 
 use App\Models\Rate;
 use App\Repositories\AbstractRepository;
