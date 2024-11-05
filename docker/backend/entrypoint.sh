@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# set exit if 
-set -e
 
 # aenmod rewrite to enable url rewriting
 a2enmod rewrite
@@ -15,7 +13,7 @@ chmod -R 775 /var/www/html/bootstrap
 php artisan route:cache
 php artisan config:clear
 php artisan view:clear
-
+php artisan test
 # start the apache server and keep it running as a foreground service
 apache2-foreground
 
