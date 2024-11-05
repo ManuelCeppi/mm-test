@@ -36,6 +36,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'auth_token',
     ];
 
     public function checkIfIsInternalUser(): bool
