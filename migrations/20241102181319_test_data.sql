@@ -52,6 +52,11 @@ INSERT INTO users (name, surname, country_code, email, birth_date, password, pho
 INSERT INTO mm_internal_users (user_id) VALUES
 (1);
 
+INSERT INTO rates(name, description, base_amount, valid_from, valid_to, amount_per_hour, amount_per_minute, amount_per_second) VALUES
+('Basic Rate', NULL, 2.9, '2023-01-01 00:00:00', NULL, 2.9, 0.6, 0.001),
+('Premium Rate', NULL, 4.9, '2023-01-01 00:00:00', "2023-10-01 00:00:00", 4.9, 1.2, 0.002);
+
+
 -- migrate:down
 TRUNCATE TABLE stations;
 TRUNCATE TABLE scooters;

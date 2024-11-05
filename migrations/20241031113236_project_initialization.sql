@@ -110,6 +110,21 @@ CREATE TABLE payment_intents (
     FOREIGN KEY (payment_method_id) REFERENCES users_payment_methods(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- rates
+CREATE TABLE rates (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    base_amount DECIMAL(10, 2) NOT NULL,
+    amount_per_second DECIMAL(10, 2) NOT NULL,
+    amount_per_minute DECIMAL(10, 2) NOT NULL,
+    amount_per_hour DECIMAL(10, 2) NOT NULL,
+    valid_from TIMESTAMP NOT NULL,
+    valid_to TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- rentals
 CREATE TABLE rentals (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -122,12 +137,14 @@ CREATE TABLE rentals (
     scooter_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     status ENUM('starting', 'ongoing', 'finished', 'failed') DEFAULT 'starting',
+    rate_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (starting_station_id) REFERENCES stations(id),
     FOREIGN KEY (ending_station_id) REFERENCES stations(id),
-    FOREIGN KEY (scooter_id) REFERENCES scooters(id)
+    FOREIGN KEY (scooter_id) REFERENCES scooters(id),
+    FOREIGN KEY (rate_id) REFERENCES rates(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
@@ -135,10 +152,24 @@ ALTER TABLE payment_intents ADD FOREIGN KEY (rental_id) REFERENCES rentals(id);
 CREATE TABLE payment_gateway_events (
     id INT PRIMARY KEY AUTO_INCREMENT,
     payment_gateway_event_id VARCHAR(255) NOT NULL UNIQUE,
-    payment_gateway VARCHAR(255) NOT NULL,
+    payment_gateway CHAR(20) NOT NULL,
     processed BOOLEAN DEFAULT FALSE,
     type VARCHAR(255) NOT NULL,
     data JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE payment_gateway_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    endpoint VARCHAR(255) NOT NULL,
+    payment_gateway CHAR(20) NOT NULL,
+    user_id INT NOT NULL,
+    request JSON NOT NULL,
+    response JSON NOT NULL,
+    status_code INT NOT NULL,
+    request_date TIMESTAMP NOT NULL,
+    response_date TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -147,9 +178,11 @@ CREATE TABLE payment_gateway_events (
 DROP TABLE stations;
 DROP TABLE scooters;
 DROP TABLE rentals;
+DROP TABLE rates;
 DROP TABLE users;
 DROP TABLE payment_intents;
 DROP TABLE mm_internal_users;
 DROP TABLE users_payment_methods;
 DROP TABLE personal_access_tokens;
 DROP TABLE payment_gateway_events;
+DROP TABLE payment_gateway_logs;
