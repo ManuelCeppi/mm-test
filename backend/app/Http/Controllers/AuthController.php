@@ -23,7 +23,7 @@ class AuthController extends Controller
     {
         // Creating user
         $user = $this->authManager->register($request);
-        // Login
-        Auth::login($user);
+
+        return response(["user" => $user], 201);
     }
 }

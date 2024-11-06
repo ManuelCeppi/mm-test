@@ -81,7 +81,7 @@ services:
   stripe.cli.mm.rental.project:
     container_name: stripe.cli.mm.rental.project
     image: "stripe/stripe-cli:latest"
-    command: "listen --api-key $${STRIPE_API_KEY} --forward-to localhost:80/payment/webhook/"
+    command: "listen --api-key $${STRIPE_API_KEY} --forward-to $${RP_HOST}:80/mm/webhooks"
     env_file:
       - api.dev.env
     networks:
