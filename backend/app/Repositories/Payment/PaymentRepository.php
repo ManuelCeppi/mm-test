@@ -26,7 +26,7 @@ class PaymentRepository extends AbstractRepository
     {
         $eq = $this->getEloquentBuilder();
         $eq->where('rental_id', $rentalId);
-        $eq->where('status', $status->value);
+        $eq->where('charge_status', $status->value);
         return $eq->first();
     }
 }

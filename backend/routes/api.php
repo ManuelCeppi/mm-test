@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/mm')->group(function () {
     Route::get('/healthcheck', function () {
-        echo "App is running!";
+        return response(['status' => 'ok'], 200);
     });
     // Middleware auth:api is specified on /config/auth.php file: 'guards' => ['api' => ['driver' => 'mm-token']]
     Route::prefix('/users')->middleware('auth:api')->group(function () {

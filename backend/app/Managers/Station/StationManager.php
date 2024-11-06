@@ -34,20 +34,33 @@ class StationManager
         return $station;
     }
 
-    public function insert(InsertStationRequest $station): Station
+    public function insert(InsertStationRequest $request): Station
     {
+        $station = new Station();
+        $station->fill($request->validated());
         return $this->stationService->insert($station);
     }
 
-    public function update(UpdateStationRequest $station): Station
+    public function update(UpdateStationRequest $request, int $id): Station
     {
-        $station = $this->get($station->id);
-        $station->fill($station->validated());
+        $station = $this->get($id);
+        if (!$station) {
+            throw new ModelNotFoundException('Station not found');
+        }
+        $station->fill($request->validated());
         return $this->stationService->update($station);
     }
 
     public function delete(int $id): void
     {
+        // Check if the station exists
+        $this->get($id);
+        // Check if it has associated scooters
+        $parkedScooters = $this->stationService->getParkedScooters($id);
+        if ($parkedScooters->count() > 0) {
+            throw new \Exception('Station has parked scooters');
+        }
+        // TODO Ofcourse, there are more checks to be done here, like rentals, etc.
         $this->stationService->delete($id);
     }
 }

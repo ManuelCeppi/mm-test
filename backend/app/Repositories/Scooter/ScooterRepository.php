@@ -6,7 +6,7 @@ namespace App\Repositories\Scooter;
 
 use App\Models\Scooter;
 use App\Repositories\AbstractRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class ScooterRepository extends AbstractRepository
 {

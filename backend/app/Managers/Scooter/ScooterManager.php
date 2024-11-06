@@ -45,6 +45,10 @@ class ScooterManager
 
     public function delete(int $id): void
     {
+        // Check if the scooter exists
+        $this->get($id);
+
+        // TODO Check if has associations with other entities
         $this->scooterService->delete($id);
     }
 }

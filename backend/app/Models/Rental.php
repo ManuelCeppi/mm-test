@@ -17,4 +17,8 @@ class Rental extends Model
      * @var array<int, string>
      */
     protected $fillable = [];
+
+    protected $casts = [
+        'amount' => 'float'
+    ];
 }

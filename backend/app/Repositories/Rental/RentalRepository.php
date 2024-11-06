@@ -59,7 +59,7 @@ class RentalRepository extends AbstractRepository implements RentalRepositoryInt
                 $singleRow['scooter_id'],
                 $singleRow['starting_station_id'],
                 $singleRow['starting_station_name'],
-                Carbon::createFromTimestampUTC($singleRow['starting_rental_date']),
+                Carbon::parse($singleRow['starting_rental_date']),
                 $singleRow['scooter_name'],
                 $singleRow['user_name'],
                 $singleRow['user_email']
@@ -94,13 +94,13 @@ class RentalRepository extends AbstractRepository implements RentalRepositoryInt
             scooters.`name` as scooter_name,
             s.`name` as starting_station_name,
             s1.`name` as ending_station_name,
-            rentals.amount,
+            rentals.amount AS amount,
             rentals.duration_seconds
             FROM users 
             JOIN rentals ON users.id = rentals.user_id
             JOIN scooters ON rentals.scooter_id = scooters.id
             JOIN stations s ON rentals.starting_station_id = s.id
-            JOIN stations s1 ON rentals.ending_station_id = s1.id
+            LEFT JOIN stations s1 ON rentals.ending_station_id = s1.id
             WHERE users.id = :userId
             ORDER BY rentals.start_date DESC
             LIMIT :limit OFFSET :offset
@@ -121,14 +121,14 @@ class RentalRepository extends AbstractRepository implements RentalRepositoryInt
                 $singleRow['starting_station_id'],
                 $singleRow['ending_station_id'],
                 $singleRow['scooter_id'],
-                $singleRow['name'],
+                $singleRow['user_name'],
                 $singleRow['surname'],
                 $singleRow['email'],
                 $singleRow['phone_number'],
-                Carbon::createFromTimestampUTC($singleRow['start_date']),
-                $singleRow['end_date'] ? Carbon::createFromTimestampUTC($singleRow['end_date']) : null,
+                Carbon::parse($singleRow['start_date']),
+                $singleRow['end_date'] ? Carbon::parse($singleRow['end_date']) : null,
                 RentalStatus::from($singleRow['status']),
-                $singleRow['amount'],
+                $singleRow['amount'] !== null ? floatval($singleRow['amount']) : null,
                 $singleRow['duration_seconds'],
                 $singleRow['scooter_name'],
                 $singleRow['starting_station_name'],

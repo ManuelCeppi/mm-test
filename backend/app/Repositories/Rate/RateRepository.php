@@ -17,7 +17,7 @@ class RateRepository extends AbstractRepository
     public function getActualValidRate(): ?Rate
     {
         $eq = $this->getEloquentBuilder();
-        $now = now();
+        $now = now('UTC');
         $eq->where('valid_from', '<=', $now);
         $eq->where('valid_to', '>=', $now)
             ->orWhereNull('valid_to');
