@@ -117,7 +117,7 @@ class RentalManager
                 $actualRate->amount_per_hour = 36; // 36€ per hour
             }
 
-            $description = 'Starting rental for scooter ' . $scooterUid . ' by customer ' . $user->payment_gateway_customer_id;
+            $description = 'Rental for scooter ' . $scooterUid . ' by customer ' . $user->payment_gateway_customer_id;
             // TODO Comment for testing purposes.
             $paymentIntent = $this->stripeApiService->createPaymentIntent([
                 'description' => $description,

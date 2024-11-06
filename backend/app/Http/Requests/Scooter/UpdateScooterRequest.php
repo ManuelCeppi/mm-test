@@ -16,6 +16,7 @@ class UpdateScooterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['string'],
             'license_plate' => ['string'],
             'battery_level' => ['numeric'],
             'status' => [Rule::Enum(ScooterStatus::class)],

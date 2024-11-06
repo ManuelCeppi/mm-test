@@ -18,7 +18,7 @@ class InsertScooterRequest extends FormRequest
     {
         return [
             'uid' => ['required', 'string'],
-            'model' => ['required', 'string'],
+            'name' => ['required', 'string'],
             'license_plate' => ['required', 'string'],
             'battery_level' => ['required', 'numeric'],
             'status' => ['required', Rule::enum(ScooterStatus::class)],

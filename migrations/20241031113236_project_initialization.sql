@@ -24,6 +24,7 @@ CREATE TABLE scooters (
     current_station_id INT NULL, -- the station where it's currently located and in charging status
     status ENUM('available', 'unavailable', 'faulted', 'recharging', 'rented') DEFAULT 'available', 
     battery_level DECIMAL(5,2) NOT NULL,
+    license_plate VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (primary_station_id) REFERENCES stations(id),
